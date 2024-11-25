@@ -1,12 +1,17 @@
 const express = require('express');
 const path = require('path'); // import path module
 const app = express();
+const dogsRouter = require('./routes/dogs');
 require('express-async-errors');
+
 
 app.use(express.json()); // for JSON parsing
 
 // serve static files under /static
 app.use('/static', express.static(path.join(__dirname, 'assets')));
+
+
+app.use('/dogs', dogsRouter);
 
 // logger middleware
 const loggerMiddleware = (req, res, next) => {
