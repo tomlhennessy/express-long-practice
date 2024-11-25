@@ -1,5 +1,12 @@
 const express = require('express');
+const path = require('path'); // import path module
 const app = express();
+require('express-async-errors');
+
+app.use(express.json()); // for JSON parsing
+
+// serve static files under /static
+app.use('/static', express.static(path.join(__dirname, 'assets')));
 
 // For testing purposes, GET /
 app.get('/', (req, res) => {
@@ -19,5 +26,11 @@ app.get('/test-error', async (req, res) => {
   throw new Error("Hello World!")
 });
 
-const port = 5000;
+app.use((err, req, res, next) => {
+  res.status(err.statusCode || 500).json({
+    error: err.message || 'Internal Server Error',
+  })
+})
+
+const port = 5001;
 app.listen(port, () => console.log('Server is listening on port', port));
