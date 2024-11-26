@@ -3,6 +3,7 @@ const path = require('path'); // import path module
 const app = express();
 const dogsRouter = require('./routes/dogs');
 require('express-async-errors');
+require('dotenv').config();
 
 
 app.use(express.json()); // for JSON parsing
@@ -45,18 +46,19 @@ app.get('/test-error', async (req, res) => {
   throw new Error("Hello World!")
 });
 
-// resource not found middleware
-app.use((req, res, next) => {
-  const err = new Error("The requested resource couldn't be found.");
-  err.statusCode = 404;
-  next(err); // pass to the error handler
-})
-
-// Custom Error Handler Middleware
+// Error Handler Middleware
 app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500).json({
-    error: err.message || 'Internal Server Error',
-  });
+  console.error(err); // log error to terminal
+
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Something went wrong";
+
+  // response JSON
+  res.status(statusCode).json({
+    message,
+    statusCode,
+    ...(process.env.NODE_ENV !== "production" && { stack: err.stack }) // include stack in non-production environments
+  })
 });
 
 const port = 5001;
